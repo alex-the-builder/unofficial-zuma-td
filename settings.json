@@ -1,0 +1,6 @@
+{
+    "lives": 2,
+    "enemies_per_round": 5,
+    "regen_distance": 3,
+    "chameleon_frequency": 5
+}
