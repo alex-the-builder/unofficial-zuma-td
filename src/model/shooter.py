@@ -1,3 +1,4 @@
+import random
 from enum import auto, StrEnum
 
 class Direction(StrEnum):
@@ -24,7 +25,6 @@ class Shooter:
             self.ready_to_fire = True
 
     def get_next_color(self) -> int:
-        import random
         return random.choice(self.colors)
 
     def reset_fire(self) -> None:
