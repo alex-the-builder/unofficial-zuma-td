@@ -7,6 +7,7 @@ from src.model.path import Path
 from src.model.cell import Cell, CellType
 from src.model.game_settings import GameSettings, load_settings
 from src.model.shooter import Shooter, Direction
+from src.model.tower import Tower
 
 TILE_SIZE = 16
 SCREEN_WIDTH = 240
@@ -31,46 +32,7 @@ class GameController:
         self.current_round: int = 1
         self.total_rounds: int = 2
         self.between_rounds: bool = False
-        
-        self.sound_init()
-
-    def sound_init(self):
-        # Kill Enemy SFX
-        pyxel.sounds[0].set(
-            notes="C3E3G3C4E4",
-            tones="PPPPP",
-            volumes="567777744",
-            effects="NNNNS",
-            speed=10
-        )
-
-        #Melody for End of Round
-        pyxel.sounds[1].set(
-            notes="C3G3C4E4G4C4E4C4",
-            tones="PPPPPPPP",
-            volumes="57777777",
-            effects="NNNNNNVF",
-            speed=7
-        )
-        pyxel.sounds[2].set(
-            notes="C2G2C3G2C3G2C3G2",
-            tones="SSSSSSSS",
-            volumes="77770000",
-            effects="NNNNNNNN",
-            speed=7
-        )
-        pyxel.sounds[3].set(
-            notes="E4G4B4E4G4E4B4G4",
-            tones="TTTTTTTT",
-            volumes="44556654",
-            effects="NNNNVVFF",
-            speed=7
-        )
-
-    def sfx_round_end(self):
-        pyxel.play(ch=0, snd=1)
-        pyxel.play(ch=1, snd=1)
-        pyxel.play(ch=2, snd=1)
+        self.towers: list[Tower] = []
 
     def _setup_path(self) -> None:
         cells: list[Cell] = []
@@ -108,13 +70,15 @@ class GameController:
             if self.current_round >= self.total_rounds:
                 pyxel.quit()  # game won
             else:
-                self.sfx_round_end()
+                #self.sfx_round_end()
                 self.between_rounds = True
 
         if not self.player.is_alive():
             pyxel.quit()  # game lost
 
         if self.between_rounds:
+            if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
+                self._try_place_tower()
             if pyxel.btnp(pyxel.KEY_RETURN):
                 self._start_next_round()
             return
@@ -138,6 +102,11 @@ class GameController:
 
         for enemy in self.enemies:
             enemy.update(dt)
+        
+        for tower in self.towers:
+            tower.update(dt)
+            if tower.ready_to_fire():
+                self.bullets.append(tower.shoot())
 
         self._check_collisions()
         self._check_goal()
@@ -145,7 +114,14 @@ class GameController:
         self.bullets = [b for b in self.bullets if b.active and not b.is_out_of_bounds(SCREEN_WIDTH, SCREEN_HEIGHT)]
         self.enemies = [e for e in self.enemies if e.alive]
 
-    # TODO erase
+    def _try_place_tower(self) -> None:
+        import random
+        if self.player.exp >= 5:
+            mx = pyxel.mouse_x
+            my = pyxel.mouse_y
+            self.player.exp -= 5
+            self.towers.append(Tower(x=mx, y=my, color=random.choice([8, 11])))
+
     """
     def _handle_input(self) -> None:
         import pyxel
@@ -192,8 +168,9 @@ class GameController:
     def draw(self) -> None:
 
         if self.between_rounds:
-            pyxel.text(80, 110, f"ROUND {self.current_round} COMPLETE", 7)
-            pyxel.text(80, 120, "PRESS ENTER TO CONTINUE", 7)
+            pyxel.text(70, 100, f"ROUND {self.current_round} COMPLETE", 7)
+            pyxel.text(55, 110, "CLICK TO PLACE TOWER (5 EXP)", 7)
+            pyxel.text(65, 120, "PRESS ENTER TO CONTINUE", 7)
             return
 
         for cell in self.path.cells:
@@ -206,6 +183,9 @@ class GameController:
         
         for bullet in self.bullets:
             pyxel.circ(int(bullet.x), int(bullet.y), bullet.radius, bullet.color)
+        
+        for tower in self.towers:
+            pyxel.rect(tower.x - 8, tower.y - 8, TILE_SIZE, TILE_SIZE, 10)
 
         
         pyxel.rect(self.shooter.x - 8, self.shooter.y - 8, TILE_SIZE, TILE_SIZE, 11)
