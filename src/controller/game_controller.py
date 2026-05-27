@@ -166,8 +166,11 @@ class GameController:
                 self.player.lose_life()
 
     def draw(self) -> None:
-
+        for tower in self.towers:
+            pyxel.rect(tower.x - 8, tower.y - 8, TILE_SIZE, TILE_SIZE, 10)
+            
         if self.between_rounds:
+
             pyxel.text(70, 100, f"ROUND {self.current_round} COMPLETE", 7)
             pyxel.text(55, 110, "CLICK TO PLACE TOWER (5 EXP)", 7)
             pyxel.text(65, 120, "PRESS ENTER TO CONTINUE", 7)
@@ -183,9 +186,7 @@ class GameController:
         
         for bullet in self.bullets:
             pyxel.circ(int(bullet.x), int(bullet.y), bullet.radius, bullet.color)
-        
-        for tower in self.towers:
-            pyxel.rect(tower.x - 8, tower.y - 8, TILE_SIZE, TILE_SIZE, 10)
+    
 
         
         pyxel.rect(self.shooter.x - 8, self.shooter.y - 8, TILE_SIZE, TILE_SIZE, 11)
