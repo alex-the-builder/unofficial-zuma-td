@@ -7,6 +7,9 @@ class App:
         self.controller = GameController()
         pyxel.mouse(True)
         pyxel.run(self.update, self.draw)
+        
+        pyxel.load("./my_resource.pyxres")
+        pyxel.playm(0, loop=True)
 
     def update(self):
         self.controller.update()

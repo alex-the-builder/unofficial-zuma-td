@@ -155,7 +155,7 @@ class GameController:
                     continue
                 if bullet.hits(enemy.x, enemy.y, TILE_SIZE):
                     if enemy.take_hit(bullet.color):
-                        pyxel.play(ch=0, snd=0)
+                        ...
                     bullet.active = False
                     if not enemy.alive:
                         self.player.gain_exp(1)
