@@ -14,6 +14,7 @@ TILE_SIZE = 16
 SCREEN_WIDTH = 240
 SCREEN_HEIGHT = 240
 FPS = 30
+COLORS = [8,11, 2, 9, 14, 15]
 
 class GameController:
     def __init__(self):
@@ -23,7 +24,7 @@ class GameController:
         self.shooter = Shooter(
             x=SCREEN_WIDTH // 2,
             y=SCREEN_HEIGHT // 2,
-            colors=[8,11]
+            colors=COLORS
         )
         self.bullets: list[Bullet] = []
         self.enemies: list[Enemy] = []
@@ -52,7 +53,7 @@ class GameController:
 
     def _spawn_enemies(self, count: int) -> list[Enemy]:
         import random
-        colors = [8, 11]
+        colors = COLORS
         return [Enemy(color=random.choice(colors), hp=1, speed=2.0, path=self.path) for _ in range(count)]
     
     def _start_next_round(self) -> None:
@@ -132,7 +133,7 @@ class GameController:
             mx = pyxel.mouse_x
             my = pyxel.mouse_y
             self.player.exp -= 5
-            self.towers.append(Tower(x=mx, y=my, color=random.choice([8, 11])))
+            self.towers.append(Tower(x=mx, y=my, color=random.choice(COLORS)))
 
     """
     def _handle_input(self) -> None:
