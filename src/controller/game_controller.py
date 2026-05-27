@@ -84,7 +84,8 @@ class GameController:
             self.enemies.append(self.spawn_queue.pop(0))
 
         self.shooter.update(dt)
-        self._handle_input()
+        #TODO cleanup
+        #self._handle_input()
         
 
         if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) and self.shooter.ready_to_fire:
@@ -103,6 +104,8 @@ class GameController:
         self.bullets = [b for b in self.bullets if b.active and not b.is_out_of_bounds(SCREEN_WIDTH, SCREEN_HEIGHT)]
         self.enemies = [e for e in self.enemies if e.alive]
 
+    # TODO erase
+    """
     def _handle_input(self) -> None:
         import pyxel
         if pyxel.btn(pyxel.KEY_W):
@@ -113,9 +116,10 @@ class GameController:
             self.shooter.direction = Direction.LEFT
         elif pyxel.btn(pyxel.KEY_D):
             self.shooter.direction = Direction.RIGHT
+    """
 
     def _shoot(self) -> None:
-        dx, dy = self.shooter.get_direction_vector()
+        dx, dy = self.shooter.get_direction_vector(SCREEN_WIDTH, SCREEN_HEIGHT, pyxel.mouse_x, pyxel.mouse_y)
         color = self.shooter.get_next_color()
         bullet = Bullet(
             x=float(self.shooter.x),

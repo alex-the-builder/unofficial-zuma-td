@@ -1,5 +1,6 @@
 import random
 from enum import auto, StrEnum
+import math
 
 class Direction(StrEnum):
     UP = auto()
@@ -30,7 +31,13 @@ class Shooter:
     def reset_fire(self) -> None:
         self.ready_to_fire = False
 
-    def get_direction_vector(self) -> tuple[float, float]:
+    def get_direction_vector(self, width: int, height: int, px: int, py: int) -> tuple[float, float]:
+        a = (width/2) - px
+        b = (height/2) - py
+        t = math.atan2(b, a)
+
+        return (-math.cos(t), -math.sin(t))
+
         match self.direction:
             case Direction.UP:
                 return 0.0, -1.0

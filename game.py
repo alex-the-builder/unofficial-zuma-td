@@ -5,6 +5,7 @@ class App:
     def __init__(self):
         pyxel.init(240, 240, title="Zuma: Tower Defense", fps=30)
         self.controller = GameController()
+        pyxel.mouse(True)
         pyxel.run(self.update, self.draw)
 
     def update(self):
