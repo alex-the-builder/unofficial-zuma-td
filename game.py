@@ -6,10 +6,14 @@ class App:
         pyxel.init(240, 240, title="Zuma: Tower Defense", fps=30)
         self.controller = GameController()
         pyxel.mouse(True)
+
+        pyxel.load("my_resource.pyxres")
+        pyxel.playm(0, loop=True)
+
         pyxel.run(self.update, self.draw)
         
-        pyxel.load("./my_resource.pyxres")
-        pyxel.playm(0, loop=True)
+
+
 
     def update(self):
         self.controller.update()
