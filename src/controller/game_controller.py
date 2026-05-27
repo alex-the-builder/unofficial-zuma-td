@@ -166,9 +166,12 @@ class GameController:
                 self.player.lose_life()
 
     def draw(self) -> None:
+        for cell in self.path.cells:
+            pyxel.rect(cell.col * TILE_SIZE, cell.row * TILE_SIZE, TILE_SIZE, TILE_SIZE, 5)
+        
         for tower in self.towers:
             pyxel.rect(tower.x - 8, tower.y - 8, TILE_SIZE, TILE_SIZE, 10)
-            
+
         if self.between_rounds:
 
             pyxel.text(70, 100, f"ROUND {self.current_round} COMPLETE", 7)
