@@ -9,6 +9,7 @@ from src.model.game_settings import GameSettings, load_settings
 from src.model.shooter import Shooter, Direction
 from src.model.tower import Tower
 from src.model.game_state import GameState
+from src.model.sprite import normal_enemy
 
 TILE_SIZE = 16
 SCREEN_WIDTH = 240
@@ -182,7 +183,7 @@ class GameController:
         # always draw path and towers
         for cell in self.path.cells:
             pyxel.rect(cell.col * TILE_SIZE, cell.row * TILE_SIZE, TILE_SIZE, TILE_SIZE, 5)
-
+        
         for tower in self.towers:
             pyxel.rect(tower.x - 8, tower.y - 8, TILE_SIZE, TILE_SIZE, 10)
 
@@ -198,7 +199,8 @@ class GameController:
 
     def _draw_playing(self) -> None:
         for enemy in self.enemies:
-            pyxel.rect(enemy.x, enemy.y, TILE_SIZE, TILE_SIZE, enemy.color)
+            #pyxel.rect(enemy.x, enemy.y, TILE_SIZE, TILE_SIZE, enemy.color)
+            pyxel.blt(enemy.x, enemy.y, 0, normal_enemy[enemy.color][0], normal_enemy[enemy.color][1], TILE_SIZE, TILE_SIZE)
 
         for bullet in self.bullets:
             pyxel.circ(int(bullet.x), int(bullet.y), bullet.radius, bullet.color)
