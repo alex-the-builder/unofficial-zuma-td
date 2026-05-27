@@ -163,12 +163,21 @@ class GameController:
         self.bullets.append(bullet)
 
     def _check_collisions(self) -> None:
+        pyxel.sounds[4].set(
+            notes="C3E3G3C4E4",
+            tones="PPPPP",
+            volumes="56777",
+            effects="NNNNS",
+            speed=6
+        )
+
         for bullet in self.bullets:
             for enemy in self.enemies:
                 if not bullet.active or not enemy.alive:
                     continue
                 if bullet.hits(enemy.x, enemy.y, TILE_SIZE):
                     if enemy.take_hit(bullet.color):
+                        pyxel.play(ch=2, snd=4)
                         ...
                     bullet.active = False
                     if not enemy.alive:
@@ -199,6 +208,7 @@ class GameController:
 
     def _draw_playing(self) -> None:
         for enemy in self.enemies:
+            #TODO cleanup
             #pyxel.rect(enemy.x, enemy.y, TILE_SIZE, TILE_SIZE, enemy.color)
             pyxel.blt(enemy.x, enemy.y, 0, normal_enemy[enemy.color][0], normal_enemy[enemy.color][1], TILE_SIZE, TILE_SIZE)
 
