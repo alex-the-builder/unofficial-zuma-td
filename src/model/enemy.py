@@ -19,11 +19,13 @@ class Enemy:
         spawn: Cell = self.path.get_spawn()
         return spawn.col * 16, spawn.row * 16
 
-    def take_hit(self, bullet_color: int) -> None:
+    def take_hit(self, bullet_color: int) -> bool:
         if bullet_color == self.color:
             self.hp -= 1
             if self.hp <= 0:
                 self.alive = False
+                return True
+        return False
 
     def move(self) -> None:
         next_cell: Cell | None = self.path.get_next_cell(self.path_index)

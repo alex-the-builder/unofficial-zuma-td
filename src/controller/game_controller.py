@@ -31,6 +31,46 @@ class GameController:
         self.current_round: int = 1
         self.total_rounds: int = 2
         self.between_rounds: bool = False
+        
+        self.sound_init()
+
+    def sound_init(self):
+        # Kill Enemy SFX
+        pyxel.sounds[0].set(
+            notes="C3E3G3C4E4",
+            tones="PPPPP",
+            volumes="567777744",
+            effects="NNNNS",
+            speed=10
+        )
+
+        #Melody for End of Round
+        pyxel.sounds[1].set(
+            notes="C3G3C4E4G4C4E4C4",
+            tones="PPPPPPPP",
+            volumes="57777777",
+            effects="NNNNNNVF",
+            speed=7
+        )
+        pyxel.sounds[2].set(
+            notes="C2G2C3G2C3G2C3G2",
+            tones="SSSSSSSS",
+            volumes="77770000",
+            effects="NNNNNNNN",
+            speed=7
+        )
+        pyxel.sounds[3].set(
+            notes="E4G4B4E4G4E4B4G4",
+            tones="TTTTTTTT",
+            volumes="44556654",
+            effects="NNNNVVFF",
+            speed=7
+        )
+
+    def sfx_round_end(self):
+        pyxel.play(ch=0, snd=1)
+        pyxel.play(ch=1, snd=1)
+        pyxel.play(ch=2, snd=1)
 
     def _setup_path(self) -> None:
         cells: list[Cell] = []
@@ -68,6 +108,7 @@ class GameController:
             if self.current_round >= self.total_rounds:
                 pyxel.quit()  # game won
             else:
+                self.sfx_round_end()
                 self.between_rounds = True
 
         if not self.player.is_alive():
@@ -137,7 +178,8 @@ class GameController:
                 if not bullet.active or not enemy.alive:
                     continue
                 if bullet.hits(enemy.x, enemy.y, TILE_SIZE):
-                    enemy.take_hit(bullet.color)
+                    if enemy.take_hit(bullet.color):
+                        pyxel.play(ch=0, snd=0)
                     bullet.active = False
                     if not enemy.alive:
                         self.player.gain_exp(1)
