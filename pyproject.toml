@@ -1,7 +1,7 @@
 [project]
 name = "zuma-td"
 version = "0.1.0"
-description = ""
+description = "Zuma Tower Defense Game"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [

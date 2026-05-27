@@ -3,7 +3,7 @@ from src.controller.game_controller import GameController
 
 class App:
     def __init__(self):
-        pyxel.init(240, 240, title="Zuma TD", fps=30)
+        pyxel.init(240, 240, title="Zuma: Tower Defense", fps=30)
         self.controller = GameController()
         pyxel.run(self.update, self.draw)
 
