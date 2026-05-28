@@ -194,7 +194,7 @@ class GameController:
         # always draw path and towers
         for cell in self.path.cells:
             if cell.cell_type is not CellType.TUNNEL:
-                pyxel.rect(cell.col * TILE_SIZE, cell.row * TILE_SIZE, TILE_SIZE, TILE_SIZE, 5)
+                pyxel.blt(cell.col * TILE_SIZE, cell.row * TILE_SIZE, 1, 16, 0, TILE_SIZE, TILE_SIZE)
             else:
                 pyxel.blt(cell.col * TILE_SIZE, cell.row * TILE_SIZE, 1, 0, 0, TILE_SIZE, TILE_SIZE)
         
