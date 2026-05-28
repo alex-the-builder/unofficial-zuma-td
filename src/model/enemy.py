@@ -1,4 +1,4 @@
-from src.model.cell import Cell
+from src.model.cell import Cell, CellType
 from src.model.path import Path
 
 class Enemy:
@@ -14,6 +14,7 @@ class Enemy:
         self.alive: bool = True
         self.reached_goal: bool = False
         self.move_timer: float = 0.0
+        self.isHidden = False
 
     def _get_spawn_coords(self) -> tuple[int, int]:
         spawn: Cell = self.path.get_spawn()
@@ -29,10 +30,19 @@ class Enemy:
 
     def move(self) -> None:
         next_cell: Cell | None = self.path.get_next_cell(self.path_index)
+
         if next_cell is None:
             self.reached_goal = True
             self.alive = False
             return
+        
+        #Checks whether the next cell is a tunnel or not
+
+        if next_cell.cell_type == CellType.TUNNEL:
+            self.isHidden = True
+        else:
+            self.isHidden = False
+        
         self.path_index += 1
         self.x = next_cell.col * 16
         self.y = next_cell.row * 16

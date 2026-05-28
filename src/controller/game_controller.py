@@ -41,8 +41,9 @@ class GameController:
         cells: list[Cell] = []
 
         # horizontal segment: row 2, col 0 to 10
+        # changed to setup tunnel
         for col in range(11):
-            cell_type = CellType.SPAWN if col == 0 else CellType.PATH
+            cell_type = CellType.SPAWN if col == 0 else (CellType.TUNNEL if 3 < col < 6 else CellType.PATH)
             cells.append(Cell(row=2, col=col, cell_type=cell_type))
 
         # vertical segment: col 10, row 3 to 12
@@ -171,9 +172,10 @@ class GameController:
             speed=6
         )
 
+        #Changed to ignore hidden enemies in the tunnel
         for bullet in self.bullets:
             for enemy in self.enemies:
-                if not bullet.active or not enemy.alive:
+                if not bullet.active or not enemy.alive or enemy.isHidden:
                     continue
                 if bullet.hits(enemy.x, enemy.y, TILE_SIZE):
                     if enemy.take_hit(bullet.color):
@@ -191,7 +193,10 @@ class GameController:
     def draw(self) -> None:
         # always draw path and towers
         for cell in self.path.cells:
-            pyxel.rect(cell.col * TILE_SIZE, cell.row * TILE_SIZE, TILE_SIZE, TILE_SIZE, 5)
+            if cell.cell_type is not CellType.TUNNEL:
+                pyxel.rect(cell.col * TILE_SIZE, cell.row * TILE_SIZE, TILE_SIZE, TILE_SIZE, 5)
+            else:
+                pyxel.blt(cell.col * TILE_SIZE, cell.row * TILE_SIZE, 1, 0, 0, TILE_SIZE, TILE_SIZE)
         
         for tower in self.towers:
             pyxel.rect(tower.x - 8, tower.y - 8, TILE_SIZE, TILE_SIZE, 10)
@@ -210,7 +215,9 @@ class GameController:
         for enemy in self.enemies:
             #TODO cleanup
             #pyxel.rect(enemy.x, enemy.y, TILE_SIZE, TILE_SIZE, enemy.color)
-            pyxel.blt(enemy.x, enemy.y, 0, normal_enemy[enemy.color][0], normal_enemy[enemy.color][1], TILE_SIZE, TILE_SIZE)
+
+            if not enemy.isHidden:
+                pyxel.blt(enemy.x, enemy.y, 0, normal_enemy[enemy.color][0], normal_enemy[enemy.color][1], TILE_SIZE, TILE_SIZE)
 
         for bullet in self.bullets:
             pyxel.circ(int(bullet.x), int(bullet.y), bullet.radius, bullet.color)
