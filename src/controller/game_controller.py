@@ -10,6 +10,7 @@ from src.model.shooter import Shooter, Direction
 from src.model.tower import Tower
 from src.model.game_state import GameState
 from src.model.sprite import normal_enemy
+import random
 
 TILE_SIZE = 16
 SCREEN_WIDTH = 240
@@ -36,6 +37,49 @@ class GameController:
         self.total_rounds: int = 2
         self.state: GameState = GameState.PLAYING
         self.towers: list[Tower] = []
+        self.base_map: list[list[int]] = self._setup_map_tiles()
+
+    def _setup_map_tiles(self) -> list[list[int]]:
+        #could probably be an argument but oh well
+        # TODO fix this
+        rows = 15
+        cols = 15
+        flower_chance = 0.5
+
+        matrix = [[0]*cols for _ in range(rows)]
+
+        num_sources = random.randint(2, 4)
+        sources = []
+
+
+        for _ in range(num_sources):
+            sx = random.randint(0, rows - 1)
+            sy = random.randint(0, cols - 1)
+            sources.append((sx, sy))
+
+            for dx in range(-3, 4):
+                for dy in range(-3, 4):
+                    nx, ny = sx + dx, sy + dy
+                    if 0 <= nx < rows and 0 <= ny < cols:
+                        dist = abs(dx) + abs(dy)          # Manhattan distance
+                        spread_prob = max(0.0, 1.0 - dist / 4.5)  # fades with distance
+                        if random.random() < spread_prob:
+                            if matrix[nx][ny] == 0:
+                                matrix[nx][ny] = 1
+
+            if random.random() < flower_chance:
+                grass_tiles = [
+                    (r, c) for r in range(rows) for c in range(cols)
+                    if matrix[r][c] == 1
+                ]
+                num_flowers = random.randint(1, min(3, len(grass_tiles)))
+                chosen = random.sample(grass_tiles, num_flowers)
+                for fr, fc in chosen:
+                    matrix[fr][fc] = 2
+
+        return matrix
+        
+
 
     def _setup_path(self) -> None:
         cells: list[Cell] = []
@@ -191,6 +235,23 @@ class GameController:
                 self.player.lose_life()
 
     def draw(self) -> None:
+        # draw the base map first
+        # TODO refactor tiles into a class with names 
+
+        grid = self.base_map
+
+
+        memo = {
+            0: 48,
+            1: 32,
+            2: 64
+        }
+
+        for row in range(len(grid)):
+            for col in range(len(grid[0])):
+                pyxel.blt(col*TILE_SIZE, row*TILE_SIZE, 1, memo[grid[row][col]], 0, TILE_SIZE, TILE_SIZE)
+
+
         # always draw path and towers
         for cell in self.path.cells:
             if cell.cell_type is not CellType.TUNNEL:
