@@ -260,6 +260,7 @@ class GameController:
             else:
                 TunnelTile(cell.col * TILE_SIZE, cell.row * TILE_SIZE, TILE_SIZE, TILE_SIZE)
         
+        # TODO Keyword for searching DRAWTOWER
         for tower in self.towers:
             pyxel.rect(tower.x - 8, tower.y - 8, TILE_SIZE, TILE_SIZE, 10)
 
