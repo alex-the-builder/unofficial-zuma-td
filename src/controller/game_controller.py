@@ -10,7 +10,7 @@ from src.model.shooter import Shooter, Direction
 from src.model.tower import Tower
 from src.model.game_state import GameState
 from src.model.sprite import normal_enemy
-from src.model.graphics import BaseGraphics, BaseTile, GrassTile, FlowerTile, PathTile, TunnelTile
+from src.model.graphics import BaseGraphics, BaseTile, GrassTile, FlowerTile, PathTile, TunnelTile, NormalEnemy
 
 import random
 
@@ -279,7 +279,8 @@ class GameController:
             #pyxel.rect(enemy.x, enemy.y, TILE_SIZE, TILE_SIZE, enemy.color)
 
             if not enemy.isHidden:
-                pyxel.blt(enemy.x, enemy.y, 0, normal_enemy[enemy.color][0], normal_enemy[enemy.color][1], TILE_SIZE, TILE_SIZE)
+                NormalEnemy(enemy.x, enemy.y, TILE_SIZE, TILE_SIZE, enemy.color)
+
 
         for bullet in self.bullets:
             pyxel.circ(int(bullet.x), int(bullet.y), bullet.radius, bullet.color)
