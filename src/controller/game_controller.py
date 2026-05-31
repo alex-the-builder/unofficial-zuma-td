@@ -6,8 +6,9 @@ from src.model.enemy import Enemy
 from src.model.path import Path
 from src.model.cell import Cell, CellType
 from src.model.game_settings import GameSettings, load_settings
-from src.model.shooter import Shooter, Direction
-from src.model.tower import Tower
+from src.model.shooter import Shooter
+from src.model.direction import Direction, UpDirection, DownDirection, LeftDirection, RightDirection, MouseDirection
+from src.model.tower import SimpleTowerLVL1, Tower
 from src.model.game_state import GameState
 from src.model.sprite import normal_enemy
 import random
@@ -21,20 +22,16 @@ COLORS = [8,11, 2, 9, 14, 15]
 class GameController:
     def __init__(self):
         self.settings: GameSettings = load_settings()
-        self.player = Player(lives=self.settings.lives)
+        self.player = Player(SCREEN_WIDTH//2,SCREEN_HEIGHT//2,self.settings.lives,
+                            Shooter(SCREEN_WIDTH//2,SCREEN_HEIGHT//2,MouseDirection(),0.9,COLORS))
         self._setup_path()
-        self.shooter = Shooter(
-            x=SCREEN_WIDTH // 2,
-            y=SCREEN_HEIGHT // 2,
-            colors=COLORS
-        )
         self.bullets: list[Bullet] = []
         self.enemies: list[Enemy] = []
         self.spawn_queue: list[Enemy] = self._spawn_enemies(self.settings.enemies_per_round)
         self.spawn_timer: float = 0.0
         self.spawn_delay: float = 2.0
         self.current_round: int = 1
-        self.total_rounds: int = 2
+        self.total_rounds: int = 3
         self.state: GameState = GameState.PLAYING
         self.towers: list[Tower] = []
         self.base_map: list[list[int]] = self._setup_map_tiles()
@@ -140,11 +137,12 @@ class GameController:
             self.spawn_timer = 0.0
             self.enemies.append(self.spawn_queue.pop(0))
 
-        self.shooter.update(dt)
+        self.player.shooter.update(dt)
 
-        if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) and self.shooter.ready_to_fire:
-            self._shoot()
-            self.shooter.reset_fire()
+        if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) and self.player.shooter.ready_to_fire:
+            x,y = self.player.x, self.player.y
+            self.bullets+=self.player.shooter.shoot(x,y)
+            self.player.shooter.reset_fire()
 
         for bullet in self.bullets:
             bullet.update(dt)
@@ -153,9 +151,11 @@ class GameController:
             enemy.update(dt)
 
         for tower in self.towers:
-            tower.update(dt)
-            if tower.ready_to_fire():
-                self.bullets.append(tower.shoot())
+            tower.shooter.update(dt)
+            if tower.shooter.ready_to_fire:
+                tx,ty = tower.x, tower.y
+                tower.shooter.reset_fire()
+                self.bullets+=tower.shooter.shoot(tx,ty)
 
         self._check_collisions()
         self._check_goal()
@@ -172,14 +172,28 @@ class GameController:
             self._try_place_tower()
         if pyxel.btnp(pyxel.KEY_RETURN):
             self._start_next_round()
-
+        if pyxel.btnp(pyxel.KEY_W):
+            self._try_change_dir(UpDirection())
+        if pyxel.btnp(pyxel.KEY_A):
+            self._try_change_dir(DownDirection())
+        if pyxel.btnp(pyxel.KEY_S):
+            self._try_change_dir(LeftDirection())
+        if pyxel.btnp(pyxel.KEY_D):
+            self._try_change_dir(RightDirection())
+    
+    def _try_change_dir(self,dir:Direction) -> None:
+        mx = pyxel.mouse_x
+        my = pyxel.mouse_y
+        for tower in self.towers:
+            if tower.x - 8 <= mx <= tower.x + 8 and tower.y <= my <= tower.y + 8:
+                tower.change_dir(dir)      
     def _try_place_tower(self) -> None:
-        import random
         if self.player.exp >= 5:
             mx = pyxel.mouse_x
             my = pyxel.mouse_y
-            self.player.exp -= 5
-            self.towers.append(Tower(x=mx, y=my, color=random.choice(COLORS)))
+            self.player.exp -= 5 
+            #put it at a central point
+            self.towers.append(SimpleTowerLVL1(mx,my,Shooter(x=mx, y=my,direction=UpDirection(),fire_rate=0.5,colors=COLORS)))
 
     """
     def _handle_input(self) -> None:
@@ -194,8 +208,10 @@ class GameController:
             self.shooter.direction = Direction.RIGHT
     """
 
-    def _shoot(self) -> None:
-        dx, dy = self.shooter.get_direction_vector(SCREEN_WIDTH, SCREEN_HEIGHT, pyxel.mouse_x, pyxel.mouse_y)
+    """def _shoot(self) -> None:
+        x,y = self.shooter.x, self.shooter.y
+        dir:Direction = MouseDirection(x,y,pyxel.mouse_x,pyxel.mouse_y)
+        dx, dy = self.shooter.get_shooter_direction(dir)
         color = self.shooter.get_next_color()
         bullet = Bullet(
             x=float(self.shooter.x),
@@ -205,7 +221,7 @@ class GameController:
             color=color,
             speed=48.0
         )
-        self.bullets.append(bullet)
+        self.bullets.append(bullet)"""
 
     def _check_collisions(self) -> None:
         pyxel.sounds[4].set(
@@ -283,13 +299,14 @@ class GameController:
         for bullet in self.bullets:
             pyxel.circ(int(bullet.x), int(bullet.y), bullet.radius, bullet.color)
 
-        pyxel.rect(self.shooter.x - 8, self.shooter.y - 8, TILE_SIZE, TILE_SIZE, 11)
+        pyxel.rect(self.player.shooter.x - 8, self.player.shooter.y - 8, TILE_SIZE, TILE_SIZE, 11)
 
         pyxel.text(4, 4, f"LIVES: {self.player.lives}", 7)
         pyxel.text(4, 12, f"EXP: {self.player.exp}", 7)
 
     def _draw_place_tower(self) -> None:
         pyxel.text(70, 100, f"ROUND {self.current_round} COMPLETE", 7)
+        pyxel.text(45, 110, "PRESS U ON A TOWER TO UPGRADE IT",7)
         pyxel.text(55, 110, "CLICK TO PLACE TOWER (5 EXP)", 7)
         pyxel.text(65, 120, "PRESS ENTER TO CONTINUE", 7)
         pyxel.text(4, 4, f"EXP: {self.player.exp}", 7)

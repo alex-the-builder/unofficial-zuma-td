@@ -1,27 +1,42 @@
 from src.model.bullet import Bullet
+from src.model.shooter import Shooter, DoubleShot
+from src.model.direction import *
+from typing import Protocol
+class Tower(Protocol):
+    x:int
+    y:int
+    shooter:Shooter
+    color:int
+    cost:int
+    upgrade_cost:int
+    def upgrade(self) -> Tower | None:
+        ...
+    def change_dir(self,dir:Direction) -> None:
+        ...
 
-class Tower:
-    def __init__(self, x: int, y: int, color: int, fire_rate: float = 0.5):
+class SimpleTowerLVL1:
+    def __init__(self, x:int,y:int, shooter:Shooter):
         self.x = x
         self.y = y
-        self.color = color
-        self.fire_rate = fire_rate
-        self.fire_timer: float = 0.0
+        self.shooter = shooter
+        self.color:int = 10
         self.cost: int = 5
+        self.upgrade_cost:int = 3
+    def upgrade(self) -> Tower | None:
+        return SimpleTowerLVL2(x=self.x,y=self.y,shooter=self.shooter)
+    def change_dir(self,dir:Direction) -> None:
+        self.shooter.direction = dir
+    #handle upgrade inside or outside
 
-    def update(self, dt: float) -> None:
-        self.fire_timer += dt
-
-    def ready_to_fire(self) -> bool:
-        return self.fire_timer >= 1.0 / self.fire_rate
-
-    def shoot(self) -> Bullet:
-        self.fire_timer = 0.0
-        return Bullet(
-            x=float(self.x),
-            y=float(self.y),
-            dx=0.0,
-            dy=-1.0,
-            color=self.color,
-            speed=48.0
-        )
+class SimpleTowerLVL2(SimpleTowerLVL1):
+    def __init__(self, x:int,y:int, shooter:Shooter):
+        self.x = x
+        self.y = y
+        self.shooter = shooter
+        self.color:int = 10
+        self.cost: int = 5
+        self.upgrade_cost:int = 3
+    def upgrade(self) -> Tower | None:
+        return None
+    def change_dir(self,dir:Direction) -> None:
+        self.shooter.direction = dir
