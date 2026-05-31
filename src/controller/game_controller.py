@@ -10,7 +10,7 @@ from src.model.shooter import Shooter, Direction
 from src.model.tower import Tower
 from src.model.game_state import GameState
 from src.model.sprite import normal_enemy
-from src.model.graphics import BaseGraphics, BaseTile, GrassTile, FlowerTile
+from src.model.graphics import BaseGraphics, BaseTile, GrassTile, FlowerTile, PathTile, TunnelTile
 
 import random
 
@@ -256,9 +256,9 @@ class GameController:
         # always draw path and towers
         for cell in self.path.cells:
             if cell.cell_type is not CellType.TUNNEL:
-                pyxel.blt(cell.col * TILE_SIZE, cell.row * TILE_SIZE, 1, 16, 0, TILE_SIZE, TILE_SIZE)
+                PathTile(cell.col * TILE_SIZE, cell.row * TILE_SIZE, TILE_SIZE, TILE_SIZE)
             else:
-                pyxel.blt(cell.col * TILE_SIZE, cell.row * TILE_SIZE, 1, 0, 0, TILE_SIZE, TILE_SIZE)
+                TunnelTile(cell.col * TILE_SIZE, cell.row * TILE_SIZE, TILE_SIZE, TILE_SIZE)
         
         for tower in self.towers:
             pyxel.rect(tower.x - 8, tower.y - 8, TILE_SIZE, TILE_SIZE, 10)

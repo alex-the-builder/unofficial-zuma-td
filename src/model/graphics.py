@@ -17,3 +17,11 @@ class GrassTile(BaseGraphics):
 class FlowerTile(BaseGraphics):
     def __init__(self, x: int, y: int, width: int, length: int):
         pyxel.blt(x, y, 1, 64, 0, width, length)
+
+class PathTile(BaseGraphics):
+    def __init__(self, x: int, y: int, width: int, length: int):
+        pyxel.blt(x, y, 1, 16, 0, width, length)
+
+class TunnelTile(BaseGraphics):
+    def __init__(self, x: int, y: int, width: int, length: int):
+        pyxel.blt(x, y, 1, 0, 0, width, length)
