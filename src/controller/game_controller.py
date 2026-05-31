@@ -10,6 +10,8 @@ from src.model.shooter import Shooter, Direction
 from src.model.tower import Tower
 from src.model.game_state import GameState
 from src.model.sprite import normal_enemy
+from src.model.graphics import BaseGraphics, BaseTile, GrassTile, FlowerTile
+
 import random
 
 TILE_SIZE = 16
@@ -240,16 +242,15 @@ class GameController:
 
         grid = self.base_map
 
-
         memo = {
-            0: 48,
-            1: 32,
-            2: 64
+            0: BaseTile, 
+            1: GrassTile, 
+            2: FlowerTile
         }
 
         for row in range(len(grid)):
             for col in range(len(grid[0])):
-                pyxel.blt(col*TILE_SIZE, row*TILE_SIZE, 1, memo[grid[row][col]], 0, TILE_SIZE, TILE_SIZE)
+                memo[grid[row][col]](col*TILE_SIZE, row*TILE_SIZE, TILE_SIZE, TILE_SIZE)
 
 
         # always draw path and towers
